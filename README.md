@@ -2,7 +2,7 @@
 
 A question-answering assistant for **vLLM** and **NVIDIA Triton Inference Server** documentation. It retrieves the relevant docs, answers with an open-source LLM served by **vLLM**, checks that the answer is actually supported by the sources, and cites them.
 
-It runs as three containerized microservices on **Kubernetes**, and everything in this repo is free to run: a laptop for development, and a free Kaggle or Colab GPU for benchmarks.
+It runs as three containerized microservices with Docker Compose (tested), and includes Kubernetes deployment manifests (schema-validated; live cluster validation is pending). Everything in this repo is free to run: a laptop for development, and a free Kaggle or Colab GPU for benchmarks.
 
 ```mermaid
 flowchart LR
@@ -55,13 +55,7 @@ Hybrid search fixed the questions that hinge on exact terms like `config.pbtxt` 
 
 Almost all the latency is model inference; retrieval is under 0.6 s. That's the case for GPU serving. vLLM on those 2 vCPUs produced about 10–16 output tokens/s, with 0 errors across all runs.
 
-**On a free NVIDIA T4:** fill these in from `notebooks/free_gpu_benchmark.ipynb`.
-
-| Measurement | Value |
-|---|---|
-| vLLM peak throughput, Qwen2.5-1.5B | `___` tokens/s at concurrency `___` (`___`x vs. a single request) |
-| Time to first token p95 | `___` ms |
-| End-to-end p50 / p95, `rag` / `agent` | `___` / `___` ms |
+**On an NVIDIA GPU:** GPU benchmarking is planned and not yet measured. `notebooks/free_gpu_benchmark.ipynb` runs it on a free Kaggle T4, and its results will be added here.
 
 **Quality checks:** 88 tests (`pytest`), including malformed model output (`[1]`, `true`, wrong field types, unreadable verdicts) at the unit and HTTP level, pyflakes clean, both Docker images build and the full `docker compose` stack runs (3 containers healthy, service-name networking, retriever starts in under 1 s from the prebuilt index), both Kubernetes configurations pass `kubeconform -strict` (10/10 resources each), and the UI was tested in headless Chrome on desktop and mobile widths with no console errors.
 
@@ -81,7 +75,7 @@ wsl --install -d Ubuntu
 
 Restart, then open **Ubuntu** from the Start menu and create your Linux user.
 
-Give WSL enough memory. Create `C:\Users\<you>\.wslconfig` containing:
+Give WSL enough memory. Create `C:\Users\<your-Windows-username>\.wslconfig` containing:
 
 ```ini
 [wsl2]
@@ -111,8 +105,8 @@ lscpu | grep -o -w 'avx512f\|avx2' | sort -u
 ### 2. Get the code and the docs corpus
 
 ```bash
-git clone https://github.com/<you>/docs-rag-inference.git && cd docs-rag-inference
-./scripts/fetch_docs.sh          # downloads vLLM + Triton docs (~300 Markdown files)
+git clone https://github.com/Rushikareddy23/docs-rag-inference.git && cd docs-rag-inference
+bash scripts/fetch_docs.sh       # downloads vLLM + Triton docs (~300 Markdown files)
 ```
 
 ### 3a. Fastest: Docker Compose
