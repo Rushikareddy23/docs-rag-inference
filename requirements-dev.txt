@@ -1,0 +1,3 @@
+-r services/gateway/requirements.txt
+-r services/retriever/requirements.txt
+pytest==8.3.4

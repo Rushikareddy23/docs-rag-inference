@@ -1,0 +1,27 @@
+# Quick local run without Kubernetes:  docker compose up --build
+# Then: curl -X POST localhost:8080/v1/ask -H 'content-type: application/json' -d '{"question":"What is dynamic batching in Triton?"}'
+services:
+  vllm:
+    image: vllm/vllm-openai-cpu:latest-x86_64
+    command: ["--model", "Qwen/Qwen2.5-0.5B-Instruct", "--max-model-len", "4096", "--dtype", "float32"]
+    environment:
+      VLLM_CPU_KVCACHE_SPACE: "2"   # GiB of RAM for the KV cache
+    ports: ["8000:8000"]
+    shm_size: 2g
+    volumes: ["hf-cache:/root/.cache/huggingface"]
+
+  retriever:
+    build: ./services/retriever
+    ports: ["8001:8001"]
+
+  gateway:
+    build: ./services/gateway
+    environment:
+      LLM_BASE_URL: http://vllm:8000/v1
+      LLM_MODEL: Qwen/Qwen2.5-0.5B-Instruct
+      RETRIEVER_URL: http://retriever:8001
+    ports: ["8080:8080"]
+    depends_on: [vllm, retriever]
+
+volumes:
+  hf-cache:
