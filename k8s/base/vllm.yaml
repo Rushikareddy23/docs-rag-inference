@@ -1,0 +1,71 @@
+# vLLM model server. Base = CPU image with a small model (runs on a laptop).
+# The gpu overlay swaps the image, adds an NVIDIA GPU request and a bigger model.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  namespace: docs-rag
+  labels: {app: vllm}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: vllm}
+  template:
+    metadata:
+      labels: {app: vllm}
+    spec:
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai-cpu:latest-x86_64
+          args:
+            - --model=$(MODEL)
+            - --served-model-name=$(MODEL)
+            - --max-model-len=4096
+            - --dtype=float32
+            - --port=8000
+          env:
+            - name: MODEL
+              valueFrom: {configMapKeyRef: {name: docs-rag-config, key: LLM_MODEL}}
+            - name: VLLM_CPU_KVCACHE_SPACE
+              value: "2"
+          ports:
+            - {name: http, containerPort: 8000}
+          resources:
+            requests: {cpu: "2", memory: 6Gi}
+            limits: {memory: 8Gi}
+          # model download + load can take minutes on first start
+          startupProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 10
+            failureThreshold: 90
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 10
+          volumeMounts:
+            - {name: hf-cache, mountPath: /root/.cache/huggingface}
+            - {name: shm, mountPath: /dev/shm}
+      volumes:
+        - name: hf-cache
+          persistentVolumeClaim: {claimName: hf-cache}
+        - name: shm
+          emptyDir: {medium: Memory, sizeLimit: 2Gi}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hf-cache
+  namespace: docs-rag
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests: {storage: 10Gi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm
+  namespace: docs-rag
+spec:
+  selector: {app: vllm}
+  ports:
+    - {name: http, port: 8000, targetPort: http}
