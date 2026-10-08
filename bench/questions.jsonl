@@ -1,0 +1,20 @@
+{"question": "How does Triton's dynamic batcher combine requests?", "expected": ["dynamic batch", "dynamic_batching"]}
+{"question": "What is max_queue_delay_microseconds used for?", "expected": ["max_queue_delay_microseconds"]}
+{"question": "How do I set up a model repository layout for Triton?", "expected": ["model repository", "model_repository"]}
+{"question": "Which file describes a Triton model's inputs and outputs?", "expected": ["config.pbtxt"]}
+{"question": "How can I run multiple instances of a model on one GPU in Triton?", "expected": ["instance_group", "instance group"]}
+{"question": "How do I check if the Triton server is ready?", "expected": ["/v2/health/ready", "health/ready"]}
+{"question": "What metrics does Triton expose for Prometheus?", "expected": ["metrics", "prometheus"]}
+{"question": "How do I chain models together into a pipeline in Triton?", "expected": ["ensemble"]}
+{"question": "How do I start an OpenAI-compatible server with vLLM?", "expected": ["vllm serve", "openai-compatible", "openai compatible"]}
+{"question": "What does gpu-memory-utilization control in vLLM?", "expected": ["gpu-memory-utilization", "gpu_memory_utilization"]}
+{"question": "How do I run vLLM across multiple GPUs with tensor parallelism?", "expected": ["tensor-parallel-size", "tensor_parallel_size", "tensor parallel"]}
+{"question": "Does vLLM support quantized models like AWQ or GPTQ?", "expected": ["awq", "gptq"]}
+{"question": "What is automatic prefix caching in vLLM?", "expected": ["prefix caching", "prefix_caching"]}
+{"question": "How can I make vLLM return JSON that matches a schema?", "expected": ["structured output", "json_schema", "guided_json"]}
+{"question": "How do I limit the maximum context length a vLLM server accepts?", "expected": ["max-model-len", "max_model_len"]}
+{"question": "How do I deploy vLLM on Kubernetes?", "expected": ["kubernetes", "helm"]}
+{"question": "What is speculative decoding and how is it enabled in vLLM?", "expected": ["speculative"]}
+{"question": "How do LoRA adapters work with vLLM?", "expected": ["lora"]}
+{"question": "How do I serve a model with Triton using the Python backend?", "expected": ["python backend", "python_backend", "model.py"]}
+{"question": "How does Triton handle sequence batching for stateful models?", "expected": ["sequence batch", "sequence_batching"]}
